@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "696d466c-1585-42b1-8a9c-6927315531e1",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38632335"
+	},
+	"item": [
+		{
+			"name": "pruebaTareas",
+			"item": [
+				{
+					"name": "Crear tarea",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"{\r",
+									"  \"title\": \"Primera tarea\",\r",
+									"  \"description\": \"Probando backend\",\r",
+									"  \"tags\": [\"trabajo\", \"urgente\"]\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Primera tarea\",\r\n  \"description\": \"Probando backend\",\r\n  \"tags\": [\"trabajo\", \"urgente\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todas las tareas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una tarea",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tasks/69d59115f5df5890d2b106ef",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"69d59115f5df5890d2b106ef"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Completar una tarea",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tasks/69d59115f5df5890d2b106ef/complete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"69d59115f5df5890d2b106ef",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar tarea",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tasks/69d59115f5df5890d2b106ef",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"69d59115f5df5890d2b106ef"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
