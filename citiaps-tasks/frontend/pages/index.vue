@@ -7,6 +7,8 @@ import TaskList from '~/components/TaskList.vue'
 const { tasks, loading, error, fetchTasks, createTask, completeTask, deleteTask, deletePermanent, recoverTask, toggleActive } = useTasks()
 
 const filterType = ref<'all' | 'active' | 'completed' | 'inactive' | 'deleted'>('all')
+const currentPage = ref(1)
+const pageSize = 5
 const showDeleteModal = ref(false)
 const taskToDelete = ref<string | null>(null)
 const showDeletePermanentModal = ref(false)
@@ -32,6 +34,17 @@ const filteredTasks = computed(() => {
     return inactiveTasks
   }
   return tasks.value.filter(t => !t.isDeleted)
+})
+
+// Paginación: aplicar después de filtrar
+const paginatedTasks = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  const end = start + pageSize
+  return filteredTasks.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredTasks.value.length / pageSize)
 })
 
 const pendingCount = computed(() => tasks.value.filter(t => !t.isDeleted && !t.completed && t.active).length)
@@ -73,7 +86,18 @@ const handleDeletePermanent = async () => {
   }
 }
 
-onMounted(fetchTasks)
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+const changeFilter = (newFilter: typeof filterType.value) => {
+  filterType.value = newFilter
+  currentPage.value = 1
+}
+
+onMounted(() => fetchTasks())
 </script>
 
 <template>
@@ -89,31 +113,31 @@ onMounted(fetchTasks)
     <div class="filters">
       <button 
         :class="['filter-btn', { active: filterType === 'all' }]"
-        @click="filterType = 'all'"
+        @click="changeFilter('all')"
       >
         Todas <span class="badge">{{ tasks.filter(t => !t.isDeleted).length }}</span>
       </button>
       <button 
         :class="['filter-btn', { active: filterType === 'active' }]"
-        @click="filterType = 'active'"
+        @click="changeFilter('active')"
       > 
         Activas <span class="badge">{{ tasks.filter(t => !t.isDeleted && !t.completed && t.active).length }}</span>
       </button>
       <button 
         :class="['filter-btn', { active: filterType === 'completed' }]"
-        @click="filterType = 'completed'"
+        @click="changeFilter('completed')"
       >
         Completadas <span class="badge">{{ completedCount }}</span>
       </button>
       <button 
         :class="['filter-btn', { active: filterType === 'inactive' }]"
-        @click="filterType = 'inactive'"
+        @click="changeFilter('inactive')"
       >
         Inactivas <span class="badge">{{ inactiveCount }}</span>
       </button>
       <button 
         :class="['filter-btn', { active: filterType === 'deleted' }]"
-        @click="filterType = 'deleted'"
+        @click="changeFilter('deleted')"
       >
         Eliminadas <span class="badge">{{ deletedCount }}</span>
       </button>
@@ -123,8 +147,8 @@ onMounted(fetchTasks)
     <p v-if="error" class="error">{{ error }}</p>
 
     <TaskList
-      v-if="!loading && filteredTasks.length > 0"
-      :tasks="filteredTasks"
+      v-if="!loading && paginatedTasks.length > 0"
+      :tasks="paginatedTasks"
       :is-deleted-view="filterType === 'deleted'"
       @complete="completeTask"
       @remove="confirmDelete"
@@ -132,6 +156,29 @@ onMounted(fetchTasks)
       @remove-permanent="handleRemovePermanent"
       @toggle-active="handleToggleActive"
     />
+    
+    <!-- Paginación -->
+    <div v-if="!loading && totalPages > 1" class="pagination">
+      <button 
+        class="pagination-btn"
+        :disabled="currentPage === 1"
+        @click="goToPage(currentPage - 1)"
+      >
+        ← Anterior
+      </button>
+      
+      <div class="pagination-info">
+        Página {{ currentPage }} de {{ totalPages }}
+      </div>
+      
+      <button 
+        class="pagination-btn"
+        :disabled="currentPage === totalPages"
+        @click="goToPage(currentPage + 1)"
+      >
+        Siguiente →
+      </button>
+    </div>
     
     <div v-else-if="!loading" class="empty-state">
       <p>{{ filterType === 'deleted' ? 'No hay tareas eliminadas' : 'No hay tareas para mostrar' }}</p>
@@ -358,5 +405,47 @@ h1 {
 
 .btn-delete-permanent-confirm:hover {
   background: #b91c1c;
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 30px 0;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.pagination-btn {
+  padding: 10px 20px;
+  border: 2px solid #3b82f6;
+  background: white;
+  color: #3b82f6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
+  text-align: center;
 }
 </style>

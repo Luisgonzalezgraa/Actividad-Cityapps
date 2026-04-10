@@ -120,3 +120,38 @@ func (r *TaskRepository) DeletePermanent(id primitive.ObjectID) error {
 	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err
 }
+
+func (r *TaskRepository) FindAllPaginated(page, pageSize int) ([]models.Task, int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Calcular skip
+	skip := int64((page - 1) * pageSize)
+
+	// Contar total de documentos
+	total, err := r.collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	opts := options.Find().
+		SetSort(bson.D{{Key: "createdAt", Value: -1}}).
+		SetSkip(skip).
+		SetLimit(int64(pageSize))
+
+	cursor, err := r.collection.Find(ctx, bson.M{}, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cursor.Close(ctx)
+
+	var tasks []models.Task
+	if err := cursor.All(ctx, &tasks); err != nil {
+		return nil, 0, err
+	}
+
+	if tasks == nil {
+		tasks = []models.Task{}
+	}
+	return tasks, total, nil
+}

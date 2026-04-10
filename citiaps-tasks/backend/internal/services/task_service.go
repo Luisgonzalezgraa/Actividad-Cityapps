@@ -44,6 +44,16 @@ func (s *TaskService) FindAll() ([]models.Task, error) {
 	return s.repo.FindAll()
 }
 
+func (s *TaskService) FindAllPaginated(page, pageSize int) ([]models.Task, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 5
+	}
+	return s.repo.FindAllPaginated(page, pageSize)
+}
+
 func (s *TaskService) FindByID(id string) (*models.Task, error) {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
