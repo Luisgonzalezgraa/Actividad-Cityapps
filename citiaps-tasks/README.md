@@ -7,6 +7,7 @@ Una aplicación web moderna para la gestión completa de tareas, con soporte par
 -  Crear, editar y eliminar tareas
 -  Marcar tareas como completadas
 -  Filtrar tareas (Todas, Activas, Completadas, Inactivas, Eliminadas)
+-  Paginación de 5 tareas por página
 -  Soft delete (tareas recuperables)
 -  Hard delete (eliminación permanente)
 -  Sistema de etiquetas
@@ -232,6 +233,34 @@ curl -X POST http://localhost:8080/tasks \
     "description": "Ir al supermercado",
     "tags": ["compras", "urgente"]
   }'
+```
+
+---
+
+##  Sistema de Paginación
+
+### Funcionamiento
+
+La paginación muestra **5 tareas por página** y se aplicа **después de los filtros**. Esto garantiza que:
+
+- Si aplicas un filtro (ej: "Inactivas") y tienes 6 tareas inactivas, verás 5 en página 1 y 1 en página 2
+- Cada filtro tiene su propia paginación independiente
+- Al cambiar de filtro, se resetea a la página 1
+
+### Controles de Paginación
+
+En la interfaz encontrarás:
+- Botón **"← Anterior"** (deshabilitado en página 1)
+- Indicador visual: **"Página X de Y"**
+- Botón **"Siguiente →"** (deshabilitado en última página)
+
+### Ejemplo de Uso
+
+```
+1. Tienes 12 tareas totales no eliminadas
+2. Filtro "Todas" → Página 1 muestra tareas 1-5, Página 2 muestra tareas 6-10, Página 3 muestra tareas 11-12
+3. Cambias a filtro "Completadas" → Se reinicia en Página 1 con tus tareas completadas paginadas
+4. Tienes 6 tareas completadas → Página 1 muestra 5, Página 2 muestra 1
 ```
 
 ---
